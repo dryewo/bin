@@ -15,7 +15,6 @@ import (
 	"github.com/concourse/baggageclaim/baggageclaimcmd"
 	"github.com/concourse/baggageclaim/fs"
 	"github.com/concourse/bin/bindata"
-	"github.com/jessevdk/go-flags"
 	"github.com/pivotal-golang/lager"
 	"github.com/tedsuo/ifrit"
 )
@@ -48,15 +47,12 @@ func (cmd *WorkerCommand) gardenRunner(logger lager.Logger, args []string) (atc.
 	}
 
 	btrfsToolsDir := filepath.Join(assetsDir, "btrfs")
-	iptablesDir := filepath.Join(assetsDir, "iptables")
 
 	err = os.Setenv(
 		"PATH",
 		strings.Join(
 			[]string{
 				btrfsToolsDir,
-				filepath.Join(iptablesDir, "sbin"),
-				filepath.Join(iptablesDir, "bin"),
 				os.Getenv("PATH"),
 			},
 			string(os.PathListSeparator),
@@ -86,6 +82,9 @@ func (cmd *WorkerCommand) gardenRunner(logger lager.Logger, args []string) (atc.
 	cmd.Garden.Bin.Kawasaki = guardiancmd.FileFlag(filepath.Join(assetsDir, "bin", "kawasaki"))
 	cmd.Garden.Bin.NSTar = guardiancmd.FileFlag(filepath.Join(assetsDir, "bin", "nstar"))
 	cmd.Garden.Bin.Tar = guardiancmd.FileFlag(filepath.Join(assetsDir, "bin", "tar"))
+
+	iptablesDir := filepath.Join(assetsDir, "iptables")
+	cmd.Garden.Bin.IPTables = guardiancmd.FileFlag(filepath.Join(iptablesDir, "sbin", "iptables"))
 
 	cmd.Garden.Network.AllowHostAccess = true
 
