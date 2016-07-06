@@ -148,7 +148,7 @@ func (cmd *WorkerCommand) baggageclaimRunner(logger lager.Logger) (ifrit.Runner,
 	}
 	btrfsToolsDir := filepath.Join(assetsDir, "btrfs")
 
-	err := os.MkdirAll(volumesDir, 0755)
+	err = os.MkdirAll(volumesDir, 0755)
 	if err != nil {
 		return nil, err
 	}
