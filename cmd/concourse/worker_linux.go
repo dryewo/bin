@@ -47,22 +47,6 @@ func (cmd *WorkerCommand) gardenRunner(logger lager.Logger, args []string) (atc.
 		return atc.Worker{}, nil, err
 	}
 
-	btrfsToolsDir := filepath.Join(assetsDir, "btrfs")
-
-	err = os.Setenv(
-		"PATH",
-		strings.Join(
-			[]string{
-				btrfsToolsDir,
-				os.Getenv("PATH"),
-			},
-			string(os.PathListSeparator),
-		),
-	)
-	if err != nil {
-		return atc.Worker{}, nil, err
-	}
-
 	depotDir := filepath.Join(cmd.WorkDir, "depot")
 
 	// must be readable by other users so unprivileged containers can run their
@@ -158,6 +142,12 @@ func (cmd *WorkerCommand) baggageclaimRunner(logger lager.Logger) (ifrit.Runner,
 	volumesImage := filepath.Join(cmd.WorkDir, "volumes.img")
 	volumesDir := filepath.Join(cmd.WorkDir, "volumes")
 
+	assetsDir, err := cmd.restoreVersionedAssets(logger.Session("unpack-assets"))
+	if err != nil {
+		return nil, err
+	}
+	btrfsToolsDir := filepath.Join(assetsDir, "btrfs")
+
 	err := os.MkdirAll(volumesDir, 0755)
 	if err != nil {
 		return nil, err
@@ -190,6 +180,9 @@ func (cmd *WorkerCommand) baggageclaimRunner(logger lager.Logger) (ifrit.Runner,
 		ReapInterval: cmd.Baggageclaim.ReapInterval,
 
 		Metrics: cmd.Metrics,
+
+		MkfsBin:  filepath.Join(btrfsToolsDir, "mkfs.btrfs"),
+		BtrfsBin: filepath.Join(btrfsToolsDir, "btrfs"),
 	}
 
 	return bc.Runner(nil)
