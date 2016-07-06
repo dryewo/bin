@@ -160,7 +160,7 @@ func (cmd *WorkerCommand) baggageclaimRunner(logger lager.Logger) (ifrit.Runner,
 	}
 
 	if fsStat.Type != btrfsFSType {
-		filesystem := fs.New(logger.Session("fs"), volumesImage, volumesDir)
+		filesystem := fs.New(logger.Session("fs"), volumesImage, volumesDir, filepath.Join(btrfsToolsDir, "mkfs.btrfs"))
 
 		err = filesystem.Create(fsStat.Blocks * uint64(fsStat.Bsize))
 		if err != nil {
